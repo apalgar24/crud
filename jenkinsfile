@@ -1,0 +1,49 @@
+pipeline {
+    environment {
+        IMAGEN = "adpalgar24/crud"
+        LOGIN = 'USER_DOCKERHUB'
+    }
+    agent none
+    stages {
+        stage("Build y push") {
+            agent any
+            stages {
+                stage('CloneAnfitrion') {
+                    steps {
+                        git branch:'main',url:'https://github.com/apalgar24/jenkins_django.git'
+                    }
+                }
+                stage('BuildImage') {
+                    steps {
+                        script {
+                            newApp = docker.build "$IMAGEN:latest"
+                        }
+                    }
+                }
+                stage('UploadImage') {
+                    steps {
+                        script {
+                            docker.withRegistry( '', LOGIN ) {
+                                newApp.push()
+                            }
+                        }
+                    }
+                }
+                stage('RemoveImage') {
+                    steps {
+                        sh "docker rmi $IMAGEN:latest"
+                    }
+                }
+                stage ('SSH') {
+                    steps{
+                        sshagent(credentials : ['SSH_ADRIAN']) {
+                            sh 'ssh -o StrictHostKeyChecking=no root@kratos.senutrio.com sudo docker rmi -f adpalgar24/practica-jenkins'
+                            sh 'ssh -o StrictHostKeyChecking=no root@kratos.senutrio.com wget https://raw.githubusercontent.com/apalgar24/jenkins_django/main/docker-compose.yaml -O docker-compose.yaml'
+                            sh 'ssh -o StrictHostKeyChecking=no  root@kratos.senutrio.com sudo docker-compose up -d --force-recreate'
+        }
+    }
+}
+            }
+        }           
+    }
+}
