@@ -10,7 +10,7 @@ pipeline {
             stages {
                 stage('CloneAnfitrion') {
                     steps {
-                        git branch:'main',url:'https://github.com/apalgar24/jenkins_django.git'
+                        git branch:'main',url:'https://github.com/apalgar24/crud.git'
                     }
                 }
                 stage('BuildImage') {
@@ -37,8 +37,8 @@ pipeline {
                 stage ('SSH') {
                     steps{
                         sshagent(credentials : ['SSH_ADRIAN']) {
-                            sh 'ssh -o StrictHostKeyChecking=no root@kratos.senutrio.com sudo docker rmi -f adpalgar24/practica-jenkins'
-                            sh 'ssh -o StrictHostKeyChecking=no root@kratos.senutrio.com wget https://raw.githubusercontent.com/apalgar24/jenkins_django/main/docker-compose.yaml -O docker-compose.yaml'
+                            sh 'ssh -o StrictHostKeyChecking=no root@kratos.senutrio.com sudo docker rmi -f adpalgar24/crud'
+                            sh 'ssh -o StrictHostKeyChecking=no root@kratos.senutrio.com wget https://raw.githubusercontent.com/apalgar24/crud/main/docker-compose.yaml -O docker-compose.yaml'
                             sh 'ssh -o StrictHostKeyChecking=no  root@kratos.senutrio.com sudo docker-compose up -d --force-recreate'
         }
     }
